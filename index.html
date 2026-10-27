@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>For You</title>
+<style>
+:root{--ink:#1d1d1f;--sub:#6e6e73}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:#fafbff}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:
+radial-gradient(600px 420px at 8% 8%,#ffe3ee 0,transparent 60%),
+radial-gradient(600px 500px at 95% 22%,#dfeeff 0,transparent 60%),
+radial-gradient(700px 500px at 50% 100%,#efe5ff 0,transparent 60%),#fafbff}
+.view{display:none;min-height:100vh;padding:max(26px,env(safe-area-inset-top)) 18px 50px;align-items:center;justify-content:center;flex-direction:column}
+.view.on{display:flex;animation:in .7s cubic-bezier(.2,.8,.2,1)}
+#v3{justify-content:flex-start}
+@keyframes in{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+.glass{width:100%;max-width:420px;background:rgba(255,255,255,.58);-webkit-backdrop-filter:blur(28px) saturate(180%);backdrop-filter:blur(28px) saturate(180%);border:1px solid rgba(255,255,255,.85);border-radius:28px;box-shadow:0 10px 40px rgba(120,120,160,.15),inset 0 1px 0 rgba(255,255,255,.95);padding:28px 22px}
+h1{margin:0;font-size:34px;font-weight:700;letter-spacing:-.5px;text-align:center}
+h2{margin:6px 0 0;font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:400;font-size:24px;text-align:center;color:#d6457a}
+.sub{color:var(--sub);text-align:center;margin:8px 0 6px;font-size:15px;line-height:1.5}
+.clue{margin:18px 0 4px;padding:16px;border-radius:18px;background:rgba(255,255,255,.7);text-align:center;font-size:17px;line-height:1.5;font-weight:500}
+input{width:100%;padding:15px 16px;border-radius:14px;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.8);font-size:17px;margin-top:12px;outline:none;color:var(--ink)}
+input:focus{border-color:#ff7aa8;box-shadow:0 0 0 4px rgba(255,122,168,.18)}
+.btn{width:100%;margin-top:18px;padding:15px;border:0;border-radius:14px;background:linear-gradient(135deg,#ff86b0,#ff5b8d);color:#fff;font-size:17px;font-weight:600;transition:transform .15s,opacity .15s}
+.btn:active{transform:scale(.97)}.btn:disabled{opacity:.6}
+.err{min-height:20px;margin-top:12px;text-align:center;color:#d6457a;font-size:14px}
+.hint{text-align:center;color:var(--sub);font-size:14px;margin-top:4px}
+.shake{animation:shake .45s}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+#final{width:100%;max-width:420px;display:flex;flex-direction:column;gap:16px}
+#final .glass{padding:20px 18px;border-radius:24px}
+.row{display:flex;gap:12px}.row .glass{flex:1;text-align:center}
+.num{font-size:34px;font-weight:700;color:#d6457a}.lbl{color:var(--sub);font-size:13px;margin-top:2px}
+.cd{font-size:20px;font-weight:700;color:#d6457a;line-height:1.3}
+.photo{border-radius:26px;overflow:hidden;background:linear-gradient(90deg,#f1e9f5,#fbeef4,#f1e9f5);min-height:260px;box-shadow:0 10px 40px rgba(120,120,160,.18)}
+.photo img{width:100%;display:block}
+.msg{white-space:pre-wrap;line-height:1.7;font-size:17px}
+.tag{font-size:13px;font-weight:600;color:#d6457a;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.sec{margin:6px 4px 0;font-size:22px;font-weight:700}
+.item{cursor:pointer}.item .head{display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:600}
+.item .body{display:none;margin-top:12px;white-space:pre-wrap;line-height:1.65}.item.open .body{display:block;animation:in .4s}
+.item.locked{opacity:.65}.item small{color:var(--sub);font-weight:400}
+.album{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+.slide{flex:0 0 78%;scroll-snap-align:center}
+.slide .ph{aspect-ratio:3/4;border-radius:22px;overflow:hidden;background:linear-gradient(90deg,#f1e9f5,#fbeef4,#f1e9f5);box-shadow:0 8px 28px rgba(120,120,160,.18)}
+.slide img{width:100%;height:100%;object-fit:cover;display:block}
+.cap{text-align:center;color:var(--sub);font-size:14px;margin-top:8px}
+#lb{display:none;position:fixed;inset:0;z-index:100;background:rgba(255,255,255,.85);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);align-items:center;justify-content:center;padding:20px}
+#lb img{max-width:100%;max-height:100%;border-radius:18px}
+.heart{position:fixed;bottom:-40px;z-index:50;pointer-events:none;opacity:.9;animation:rise linear forwards}
+@keyframes rise{to{transform:translateY(-115vh) rotate(25deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<div class="view on" id="v1">
+  <div class="glass" id="c1">
+    <h1>Welcome</h1>
+    <p class="sub">Only one person can get in here.</p>
+    <input id="em" type="email" placeholder="Email" autocomplete="username" autocapitalize="none">
+    <input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+    <div class="err" id="e1"></div>
+    <button class="btn" id="go1">Enter</button>
+  </div>
+</div>
+
+<div class="view" id="v2">
+  <div class="glass" id="c2">
+    <h1>Hi</h1>
+    <h2 id="hi"></h2>
+    <div class="clue" id="clue"></div>
+    <input id="sw" type="text" placeholder="The secret word..." autocapitalize="none" autocomplete="off">
+    <div class="err" id="e2"></div>
+    <div class="hint" id="hint"></div>
+    <button class="btn" id="go2">Unlock</button>
+  </div>
+</div>
+
+<div class="view" id="v3"><div id="final"></div></div>
+<div id="lb"><img id="lbi"></div>
+
+<script>
+var TOKEN = '', cdTimer = null, heartTimer = null;
+var API='https://script.google.com/macros/s/AKfycbwGWggL_4RYp44aDg5C7rUx9V_7JmVsjz88Wh_-tL1uyWxlj271w7oLGfqoBavVagKz/exec';
+function $(id){return document.getElementById(id);}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+function show(n){var v=document.querySelectorAll('.view');for(var i=0;i<v.length;i++)v[i].classList.remove('on');$('v'+n).classList.add('on');window.scrollTo(0,0);}
+function run(fn){
+  var a=Array.prototype.slice.call(arguments,1);
+  if(window.google&&google.script&&google.script.run){
+    return new Promise(function(res,rej){var r=google.script.run.withSuccessHandler(res).withFailureHandler(rej);r[fn].apply(r,a);});
+  }
+  return fetch(API,{method:'POST',body:JSON.stringify({fn:fn,args:a})}).then(function(r){return r.json();});
+}
+function shake(id){var e=$(id);e.classList.remove('shake');void e.offsetWidth;e.classList.add('shake');}
+function burst(n){
+  var cols=['#ff6b9a','#ff9ac0','#ffb3cf','#c9a7ff'];
+  for(var i=0;i<n;i++){
+    var h=el('span','heart','♥');
+    h.style.left=Math.random()*100+'vw';
+    h.style.fontSize=(14+Math.random()*26)+'px';
+    h.style.color=cols[i%4];
+    h.style.animationDuration=(3+Math.random()*3)+'s';
+    h.style.animationDelay=(Math.random()*0.6)+'s';
+    document.body.appendChild(h);
+    (function(x){setTimeout(function(){x.remove();},7500);})(h);
+  }
+}
+function pd(s){var p=String(s).split('-').map(Number);return new Date(p[0],p[1]-1,p[2]);}
+
+$('em').addEventListener('keydown',function(e){if(e.key==='Enter')$('pw').focus();});
+$('pw').addEventListener('keydown',function(e){if(e.key==='Enter')$('go1').click();});
+$('sw').addEventListener('keydown',function(e){if(e.key==='Enter')$('go2').click();});
+
+$('go1').onclick=async function(){
+  var b=$('go1');b.disabled=true;b.textContent='...';$('e1').textContent='';
+  try{
+    var r=await run('login',$('em').value,$('pw').value);
+    if(!r.ok){$('e1').textContent=r.msg;shake('c1');}
+    else{
+      TOKEN=r.token;
+      var h=await run('getHome',TOKEN);
+      $('hi').textContent=h.hiName||'';$('clue').textContent=h.clue||'';
+      show(2);
+    }
+  }catch(e){$('e1').textContent='Something went wrong. Please try again.';}
+  b.disabled=false;b.textContent='Enter';
+};
+
+$('go2').onclick=async function(){
+  var w=$('sw').value.trim();if(!w)return;
+  var b=$('go2');b.disabled=true;b.textContent='...';$('e2').textContent='';
+  try{
+    var r=await run('guess',TOKEN,w);
+    if(r.expired){show(1);}
+    else if(r.correct){
+      burst(40);
+      var d=await run('getFinal',TOKEN);
+      render(d);
+      setTimeout(function(){show(3);burst(30);heartTimer=setInterval(function(){burst(1);},1800);},1100);
+    }else{
+      $('e2').textContent=r.msg||'Try again';
+      $('hint').textContent=r.hint?('Hint: '+r.hint):'';
+      shake('c2');
+    }
+  }catch(e){$('e2').textContent='Something went wrong. Please try again.';}
+  b.disabled=false;b.textContent='Unlock';
+};
+
+async function loadImg(img,id){
+  try{var d=await run('getPhoto',TOKEN,id);if(d)img.src=d;}catch(e){}
+}
+
+function render(d){
+  var root=$('final');root.innerHTML='';
+  root.appendChild(el('h1',null,d.title||'Happy Message'));
+
+  if(d.mainPhoto){
+    var w=el('div','photo'),i=el('img');w.appendChild(i);root.appendChild(w);loadImg(i,d.mainPhoto);
+  }
+
+  var row=el('div','row');
+  if(d.since){
+    var t0=new Date();t0=new Date(t0.getFullYear(),t0.getMonth(),t0.getDate());
+    var days=Math.max(0,Math.round((t0-pd(d.since))/864e5));
+    var c1=el('div','glass');c1.appendChild(el('div','num',String(days)));c1.appendChild(el('div','lbl','days together'));row.appendChild(c1);
+  }
+  if(d.cdDate){
+    var c2=el('div','glass'),cd=el('div','cd');c2.appendChild(cd);c2.appendChild(el('div','lbl',d.cdTitle||'Countdown'));row.appendChild(c2);
+    var target=pd(d.cdDate);
+    var tick=function(){
+      var s=Math.floor((target-new Date())/1000);
+      if(s<=0){cd.textContent='Today ♥';return;}
+      var dd=Math.floor(s/86400),hh=Math.floor(s%86400/3600),mm=Math.floor(s%3600/60),ss=s%60;
+      cd.textContent=dd+'d '+hh+'h '+mm+'m '+ss+'s';
+    };
+    tick();if(cdTimer)clearInterval(cdTimer);cdTimer=setInterval(tick,1000);
+  }
+  if(row.children.length)root.appendChild(row);
+
+  if(d.message){var m=el('div','glass msg',d.message);root.appendChild(m);}
+
+  if(d.daily){
+    var dc=el('div','glass');dc.appendChild(el('div','tag',"Today's note"));dc.appendChild(el('div','msg',d.daily));root.appendChild(dc);
+  }
+
+  if(d.msgs&&d.msgs.length){
+    root.appendChild(el('div','sec','Open when...'));
+    d.msgs.forEach(function(x){
+      var it=el('div','glass item'+(x.locked?' locked':''));
+      var hd=el('div','head');hd.appendChild(el('span',null,x.title||'A message'));
+      hd.appendChild(el('small',null,x.locked?('🔒 opens '+x.date):'💌'));
+      it.appendChild(hd);
+      if(!x.locked){
+        it.appendChild(el('div','body',x.text));
+        it.onclick=function(){it.classList.toggle('open');if(it.classList.contains('open'))burst(8);};
+      }
+      root.appendChild(it);
+    });
+  }
+
+  if(d.photos&&d.photos.length){
+    root.appendChild(el('div','sec','Our moments'));
+    var al=el('div','album');root.appendChild(al);
+    var imgs=[];
+    d.photos.forEach(function(p){
+      var s=el('div','slide'),ph=el('div','ph'),im=el('img');
+      ph.appendChild(im);s.appendChild(ph);
+      if(p.caption)s.appendChild(el('div','cap',p.caption));
+      im.onclick=function(){if(im.src){$('lbi').src=im.src;$('lb').style.display='flex';}};
+      al.appendChild(s);imgs.push([im,p.id]);
+    });
+    (async function(){for(var k=0;k<imgs.length;k++){await loadImg(imgs[k][0],imgs[k][1]);}})();
+  }
+}
+$('lb').onclick=function(){$('lb').style.display='none';};
+</script>
+</body>
+</html>
