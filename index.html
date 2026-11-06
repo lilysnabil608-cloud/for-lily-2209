@@ -84,10 +84,12 @@ input:focus{border-color:#ff7aa8;box-shadow:0 0 0 4px rgba(255,122,168,.18)}
 
 <script>
 var TOKEN = '', cdTimer = null, heartTimer = null;
-var API='https://script.google.com/macros/s/AKfycbwGWggL_4RYp44aDg5C7rUx9V_7JmVsjz88Wh_-tL1uyWxlj271w7oLGfqoBavVagKz/exec';
+var song = new Audio();
+song.volume = 0.8;
 function $(id){return document.getElementById(id);}
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
 function show(n){var v=document.querySelectorAll('.view');for(var i=0;i<v.length;i++)v[i].classList.remove('on');$('v'+n).classList.add('on');window.scrollTo(0,0);}
+var API='https://script.google.com/macros/s/AKfycbwGWggL_4RYp44aDg5C7rUx9V_7JmVsjz88Wh_-tL1uyWxlj271w7oLGfqoBavVagKz/exec';
 function run(fn){
   var a=Array.prototype.slice.call(arguments,1);
   if(window.google&&google.script&&google.script.run){
@@ -95,6 +97,7 @@ function run(fn){
   }
   return fetch(API,{method:'POST',body:JSON.stringify({fn:fn,args:a})}).then(function(r){return r.json();});
 }
+
 function shake(id){var e=$(id);e.classList.remove('shake');void e.offsetWidth;e.classList.add('shake');}
 function burst(n){
   var cols=['#ff6b9a','#ff9ac0','#ffb3cf','#c9a7ff'];
@@ -114,14 +117,18 @@ function pd(s){var p=String(s).split('-').map(Number);return new Date(p[0],p[1]-
 $('em').addEventListener('keydown',function(e){if(e.key==='Enter')$('pw').focus();});
 $('pw').addEventListener('keydown',function(e){if(e.key==='Enter')$('go1').click();});
 $('sw').addEventListener('keydown',function(e){if(e.key==='Enter')$('go2').click();});
-
+  song.src='data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YZABAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA';
 $('go1').onclick=async function(){
   var b=$('go1');b.disabled=true;b.textContent='...';$('e1').textContent='';
+    
+  song.play().catch(function(){});
   try{
     var r=await run('login',$('em').value,$('pw').value);
     if(!r.ok){$('e1').textContent=r.msg;shake('c1');}
     else{
       TOKEN=r.token;
+                  run('getSong',TOKEN).then(function(d){if(d){song.src=d;song.loop=true;song.play().catch(function(){});}}).catch(function(){});
+
       var h=await run('getHome',TOKEN);
       $('hi').textContent=h.hiName||'';$('clue').textContent=h.clue||'';
       show(2);
